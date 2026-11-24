@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f3d2e">
+<title>ACREPT Enumerator</title>
+<style>
+/* VOICE: a field tool for JATA extension agents in a busy market: big targets, few words, works offline.
+   IDEA: the enumerator's price notebook: pick a market, walk the stalls, tick off each commodity.
+   PICTURE: on desktop a phone running the app; on a phone the app itself, full screen.
+   COLOUR and TYPE: ACREPT savanna green bar, millet-gold actions, white cards; Inter / system sans.
+   LAYOUT: app bar, one task per screen, sticky bottom action, bottom tabs Home / Outbox / Settings. */
+:root{color-scheme:light;--g:#0f3d2e;--g2:#145040;--gold:#e0ab27;--ink:#14201a;--mute:#5b6a61;--bg:#f2f4ef;--card:#fff;--line:#dfe5de;--red:#b8352a;--teal:#1f7a8c;--ok:#2e7d4f;--warn:#b7791f}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font:16px/1.45 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:#dfe5de;overflow-x:clip}
+.stage{min-height:100%;display:flex;align-items:center;justify-content:center;gap:48px;padding:24px;flex-wrap:wrap}
+.side{max-width:360px}.side h1{font:700 30px/1.1 Inter,sans-serif;margin:0 0 10px;color:var(--g)}.side p{color:var(--mute);margin:0 0 12px}.side code{background:#fff;padding:2px 6px;border-radius:6px}
+.phone{width:390px;height:820px;max-height:calc(100vh - 48px);border-radius:44px;background:#0b0f0d;padding:12px;box-shadow:0 30px 60px #0f3d2e40}
+.app{position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column}
+@media(max-width:600px){body{background:var(--bg)}.stage{padding:0;display:block}.side{display:none}.phone{width:100%;height:100vh;height:100dvh;max-height:none;border-radius:0;padding:0;box-shadow:none}.app{border-radius:0}}
+.bar{background:var(--g);color:#eef5f0;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;display:flex;align-items:center;gap:10px;flex:none}
+.bar h2{font:600 18px/1.2 Inter,sans-serif;margin:0;flex:1}.bar small{display:block;font-size:12px;color:#bcd3c5;font-weight:500}
+.ib{background:transparent;border:0;color:inherit;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;cursor:pointer;flex:none}
+.ib:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.net{font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;background:#ffffff1f;white-space:nowrap;border:0;color:#eef5f0;cursor:pointer;min-height:32px}
+.net.off{background:#b8352a}
+.body{flex:1;overflow-y:auto;padding:16px;padding-bottom:24px}
+.tabs{flex:none;display:grid;grid-template-columns:repeat(3,1fr);background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{border:0;background:none;padding:8px 0 10px;font:600 12px Inter,sans-serif;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px;min-height:56px;cursor:pointer;position:relative}
+.tabs button[aria-current=page]{color:var(--g)}
+.tabs .badge{position:absolute;top:4px;left:calc(50% + 8px);background:var(--red);color:#fff;font-size:11px;border-radius:99px;padding:0 6px;line-height:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.h{font:700 20px/1.2 Inter,sans-serif;margin:4px 0 4px}.sub{color:var(--mute);font-size:14px;margin:0}
+.lbl{font-size:13px;font-weight:600;color:var(--mute);margin:12px 0 6px;display:block}
+input,select{font:inherit;font-size:17px;width:100%;min-height:50px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;color:var(--ink)}
+input.err{border-color:var(--red)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;border-radius:14px;border:0;font:700 17px Inter,sans-serif;cursor:pointer;background:var(--gold);color:#1b1504}
+.btn.g{background:var(--g);color:#fff}.btn.o{background:#fff;color:var(--g);border:1.5px solid var(--g)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{min-height:44px;font-size:15px;width:auto;padding:0 16px}
+.row{display:flex;gap:10px;align-items:center}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.mk{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff;margin-bottom:8px;cursor:pointer;width:100%;text-align:left;font:inherit;color:inherit}
+.mk .pin{width:42px;height:42px;border-radius:12px;background:#e6efe9;display:grid;place-items:center;flex:none}
+.mk b{display:block;font-weight:600}.mk .sub{font-size:13px}
+.chipg{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin:0 -16px 10px;padding-left:16px;padding-right:16px}
+.chip{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:8px 14px;font:600 14px Inter,sans-serif;cursor:pointer;min-height:40px;color:var(--ink)}
+.chip[aria-pressed=true]{background:var(--g);border-color:var(--g);color:#fff}
+.cm{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;font:inherit;color:inherit}
+.tick{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center}
+.tick.on{background:var(--ok);border-color:var(--ok)}.tick.held{background:var(--warn);border-color:var(--warn)}
+.cm b{font-weight:600}.cm .sub{font-size:13px}.cm .p{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.prog{height:10px;background:#e3e8e2;border-radius:99px;overflow:hidden;margin:10px 0 4px}.prog i{display:block;height:100%;background:var(--gold);border-radius:99px;transition:width .3s}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.seg button{border:0;background:none;min-height:46px;font:600 14px Inter,sans-serif;cursor:pointer;color:var(--ink)}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.note{border-radius:12px;padding:10px 12px;font-size:14px;margin-top:12px}
+.note.w{background:#fbf0d9;color:#6b4a0c}.note.e{background:#fbe3e0;color:#7c2219}.note.i{background:#e3eef0;color:#164b55}.note.ok{background:#e1f1e6;color:#1d5434}
+.geo{display:flex;gap:12px;align-items:center}.geo .dot{width:14px;height:14px;border-radius:50%;flex:none}
+.sticky{position:sticky;bottom:-24px;background:linear-gradient(transparent,var(--bg) 30%);padding:16px 0 4px;margin-top:8px}
+.ph{display:flex;gap:10px;align-items:center}.ph img{width:64px;height:64px;object-fit:cover;border-radius:10px}
+.ph label{flex:1}
+.ob{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+.st{font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap;align-self:start}
+.st.pending{background:#e9ecef;color:#333}.st.synced{background:#e1f1e6;color:#1d5434}.st.held{background:#fbf0d9;color:#6b4a0c}
+pre{white-space:pre-wrap;word-break:break-all;background:#0f3d2e;color:#eef5f0;padding:12px;border-radius:12px;font:13px/1.5 ui-monospace,Menlo,monospace;margin:8px 0}
+.toast{position:absolute;left:16px;right:16px;bottom:76px;background:var(--ink);color:#fff;border-radius:14px;padding:12px 14px;font-size:14px;z-index:9;display:none}
+.logo{width:36px;height:36px;flex:none}
+.hero{background:var(--g);color:#eef5f0;margin:-16px -16px 16px;padding:8px 16px 18px}
+.hero .big{font:800 30px/1 Inter,sans-serif;color:var(--gold)}
+.k{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.k div{background:#ffffff14;border-radius:12px;padding:10px}.k b{display:block;font-size:22px}.k span{font-size:12px;color:#bcd3c5}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="side">
+    <svg class="logo" style="width:56px;height:56px;margin-bottom:12px" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="12" fill="#e0ab27"/><path d="M24 7c-7.7 0-13.5 5.8-13.5 13.2 0 9.5 13.5 21 13.5 21s13.5-11.5 13.5-21C37.5 12.8 31.7 7 24 7z" fill="#0f3d2e"/><rect x="16.5" y="21" width="4" height="7" rx="1.2" fill="#e0ab27"/><rect x="22" y="17" width="4" height="11" rx="1.2" fill="#e0ab27"/><rect x="27.5" y="13" width="4" height="15" rx="1.2" fill="#fff"/></svg>
+    <h1>ACREPT Enumerator app</h1>
+    <p>The Android app JATA extension agents use to send commodity prices from each market, even without network.</p>
+    <p>Demo sign-in: ID <code>JATA-DUT-014</code>, PIN <code>2468</code>. Tap the network badge to try offline mode.</p>
+    <p style="font-size:13px">Prototype with sample prices. Data is kept on this device only.</p>
+  </div>
+  <div class="phone"><div class="app" id="app"></div></div>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const NGN=v=>'₦'+Math.round(v).toLocaleString('en-NG');
+const isAndroid=!!window.AndroidBridge;
+
+/* ---------- reference data (synced from ACREPT server in production) ---------- */
+const LGAS=[['Auyo',12.36,9.95],['Babura',12.587,8.8375],['Biriniwa',12.79,10.24],['Birnin Kudu',11.45,9.48],['Buji',11.55,9.66],['Dutse',11.76,9.34],['Gagarawa',12.41,9.53],['Garki',12.42,9.19],['Gumel',12.63,9.39],['Guri',12.73,10.42],['Gwaram',11.28,9.88],['Gwiwa',12.7313,8.2523],['Hadejia',12.45,10.04],['Jahun',12.07,9.63],['Kafin Hausa',12.1324,10.0102],['Kaugama',12.47,9.73],['Kazaure',12.65,8.41],['Kiri Kasamma',12.68,10.27],['Kiyawa',11.79,9.61],['Maigatari',12.81,9.45],['Malam Madori',12.56,10.02],['Miga',12.23,9.70],['Ringim',12.15,9.16],['Roni',12.5615,8.3164],['Sule Tankarkar',12.79,9.20],['Taura',12.233,9.3426],['Yankwashi',12.72,8.58]];
+const MKNAME={Gwaram:'Sara market',Taura:'Gujungu market',Maigatari:'Maigatari border market'};
+const DAILY=['Birnin Kudu','Dutse','Gumel','Hadejia','Kazaure','Maigatari','Ringim'];
+const CODE={'Birnin Kudu':'BKD','Biriniwa':'BRW'};
+const MARKETS=LGAS.map(([lga,lat,lon])=>({id:(CODE[lga]||lga.replace(/[^A-Za-z]/g,'').slice(0,3).toUpperCase())+'01',lga,lat,lon,name:MKNAME[lga]||lga+(DAILY.includes(lga)?' central market':' main market'),type:DAILY.includes(lga)?'Daily':'Weekly'}));
+const G=['Grains','Legumes','Tubers','Vegetables','Fruits','Cash crops','Livestock','Poultry & dairy','Fish','Inputs'];
+const C=[
+[0,'MZW','Maize (white)','Masara fara','100 kg bag',100,32000],[0,'MZY','Maize (yellow)','Masara ja','100 kg bag',100,34000],[0,'SGW','Sorghum (white)','Dawa fara','100 kg bag',100,33000],[0,'SGR','Sorghum (red)','Dawa ja','100 kg bag',100,31000],[0,'MIL','Millet','Gero','100 kg bag',100,36000],[0,'PAD','Paddy rice','Shinkafa tsaba','100 kg bag',100,30000],[0,'RCL','Local milled rice','Shinkafa gida','50 kg bag',50,63000],[0,'RCI','Imported rice','Shinkafa waje','50 kg bag',50,85000],[0,'WHT','Wheat','Alkama','100 kg bag',100,52000],
+[1,'CPW','Cowpea (white)','Wake fari','100 kg bag',100,90000],[1,'CPB','Cowpea (brown)','Wake ja','100 kg bag',100,100000],[1,'GNS','Groundnut (shelled)','Gyada surfe','100 kg bag',100,110000],[1,'GNU','Groundnut (unshelled)','Gyada da bawo','75 kg bag',75,48000],[1,'SOY','Soybean','Waken suya','100 kg bag',100,65000],[1,'SES','Sesame','Ridi','100 kg bag',100,130000],[1,'BAM','Bambara nut','Gurjiya','100 kg bag',100,80000],[1,'GNO','Groundnut oil','Man gyada','25 L jerrycan',23,62000],
+[2,'GAR','Garri','Garri','50 kg bag',50,45000],[2,'YAM','Yam','Doya','tuber (~3 kg)',3,1800],[2,'SWP','Sweet potato','Dankali','100 kg bag',100,35000],[2,'IRP','Irish potato','Dankalin turawa','50 kg bag',50,45000],[2,'CSF','Cassava flour','Garin rogo','50 kg bag',50,40000],
+[3,'TOM','Tomato','Tumatir','basket (~50 kg)',50,35000],[3,'ONI','Onion','Albasa','100 kg bag',100,60000],[3,'TAT','Sweet pepper','Tattasai','bag (~40 kg)',40,36000],[3,'ATA','Hot pepper','Atarugu','bag (~40 kg)',40,44000],[3,'DPP','Dried pepper','Busasshen barkono','bag (~25 kg)',25,87000],[3,'OKF','Fresh okra','Kubewa danya','basket (~25 kg)',25,12500],[3,'OKD','Dried okra','Busasshiyar kubewa','mudu (~1 kg)',1,2500],[3,'CAB','Cabbage','Kabeji','bag (~50 kg)',50,20000],[3,'CAR','Carrot','Karas','bag (~50 kg)',50,30000],[3,'GEG','Garden egg','Gauta','basket (~25 kg)',25,12500],
+[4,'WML','Watermelon','Kankana','piece (~6 kg)',6,2100],[4,'MNG','Mango','Mangoro','basket (~30 kg)',30,12000],[4,'ORG','Orange','Lemu','bag (~50 kg)',50,22500],[4,'DAT','Date fruit','Dabino','mudu (~1.5 kg)',1.5,3000],
+[5,'GNG','Ginger','Citta','100 kg bag',100,180000],[5,'ZOB','Hibiscus (zobo)','Zobo','100 kg bag',100,220000],[5,'TGN','Tiger nut','Aya','100 kg bag',100,150000],[5,'GUM','Gum arabic','Karo','100 kg bag',100,140000],[5,'COT','Seed cotton','Auduga','100 kg bag',100,75000],[5,'DAD','Locust bean','Daddawa','kg',1,3000],
+[6,'BUL','Bull','Bijimi','head',0,850000],[6,'COW','Cow','Saniya','head',0,600000],[6,'RAM','Ram','Rago','head',0,160000],[6,'GOT','Goat','Akuya','head',0,75000],[6,'CML','Camel','Rakumi','head',0,1400000],
+[7,'LCH','Local chicken','Kazar gida','bird',0,9000],[7,'BRL','Broiler','Kazar gona','bird',0,11000],[7,'EGG','Eggs','Kwai','crate of 30',0,5800],[7,'MLK','Fresh milk','Nono','litre',1,900],
+[8,'FFS','Fresh fish','Kifi danye','kg',1,2800],[8,'DFS','Dried or smoked fish','Busasshen kifi','kg',1,7000],
+[9,'NPK','NPK fertiliser','Takin NPK','50 kg bag',50,45000],[9,'URE','Urea','Takin Urea','50 kg bag',50,45000],[9,'BRN','Wheat bran','Dusa','50 kg bag',50,22000]
+].map(([g,code,name,ha,unit,kg,base],i)=>({i,g,code,name,ha,unit,kg,base}));
+const PRIORITY=['MZW','SGW','MIL','PAD','RCL','CPW','GNS','SES','TOM','ONI','ATA','NPK'];
+/* 7-day median per market and commodity (from server; sample here) */
+let sd=7;const rnd=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
+const MED={};MARKETS.forEach(m=>{MED[m.id]=C.map(c=>Math.round(c.base*(0.93+rnd()*.14)/10)*10)});
+
+/* ---------- i18n (Hausa draft: to be reviewed by JATA) ---------- */
+const T={en:{signin:'Sign in',id:'Enumerator ID',pin:'PIN',home:'Home',outbox:'Outbox',settings:'Settings',today:'Today',chooseMarket:'Choose a market',yourLga:'Your LGA',all:'All markets',checkLoc:'Check my location',atMarket:'You are at the market',notAt:'You are not at this market',start:'Start pricing',commodities:'Commodities',priority:'Priority',done:'priced',save:'Save price',unit:'Unit',ptype:'Price type',wholesale:'Wholesale',retail:'Retail',farmgate:'Farm-gate',low:'Lowest',common:'Most common',high:'Highest',supply:'Supply today',sLow:'Low',sNorm:'Normal',sHigh:'High',photo:'Photo of the measure',weight:'Weight of measure (kg, optional)',review:'Review and send',send:'Send',sms:'Send by SMS',pending:'Waiting to send',synced:'Sent',held:'Held for review',signout:'Sign out',lang:'Language',online:'Online',offline:'Offline',syncNow:'Send now',empty:'Nothing here yet.'},
+ha:{signin:'Shiga',id:'Lambar mai tattara bayani',pin:'Lambar sirri',home:'Gida',outbox:'Akwatin aikawa',settings:'Saituna',today:'Yau',chooseMarket:'Zaɓi kasuwa',yourLga:'Ƙaramar hukumarka',all:'Duk kasuwanni',checkLoc:'Duba wurin da nake',atMarket:'Kana cikin kasuwa',notAt:'Ba ka cikin wannan kasuwa',start:'Fara rubuta farashi',commodities:'Kayayyaki',priority:'Muhimmai',done:'an rubuta',save:'Ajiye farashi',unit:'Ma\'auni',ptype:'Irin farashi',wholesale:'Sari',retail:'Ƙiri',farmgate:'Bakin gona',low:'Mafi ƙaranci',common:'Wanda aka fi yi',high:'Mafi tsada',supply:'Yawan kaya yau',sLow:'Kaɗan',sNorm:'Daidai',sHigh:'Da yawa',photo:'Hoton ma\'auni',weight:'Nauyin ma\'auni (kg, ba dole ba)',review:'Duba ka aika',send:'Aika',sms:'Aika ta SMS',pending:'Ana jira a aika',synced:'An aika',held:'Ana dubawa',signout:'Fita',lang:'Harshe',online:'Akwai sadarwa',offline:'Babu sadarwa',syncNow:'Aika yanzu',empty:'Babu komai tukuna.'}};
+
+/* ---------- state (kept on the device) ---------- */
+const store={get(k,d){try{const v=localStorage.getItem('acrept-enum-'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('acrept-enum-'+k,JSON.stringify(v))}catch(e){}}};
+const S={user:store.get('user',null),lang:store.get('lang','en'),online:true,view:'home',market:null,geo:null,tab:'pri',q:'',com:null,form:null,outbox:store.get('outbox',[]),server:store.get('server','demo'),smsNo:store.get('smsno','')};
+const t=k=>(T[S.lang]||T.en)[k]||T.en[k];
+const save=()=>{store.set('outbox',S.outbox);store.set('user',S.user);store.set('lang',S.lang);store.set('server',S.server);store.set('smsno',S.smsNo)};
+const todayKey=()=>new Date().toISOString().slice(0,10);
+const todays=mid=>S.outbox.filter(o=>o.market_id===mid&&o.captured_at.slice(0,10)===todayKey());
+const km=(a,b)=>{const R=6371,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lon-a.lon)*r,s=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(s))};
+
+const ic={back:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>',
+home:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-6 8 6v9H4z"/></svg>',
+box:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v13H4zM4 7l2-3h12l2 3M9 12h6"/></svg>',
+cog:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>',
+pin:'<svg width="22" height="22" viewBox="0 0 24 24" fill="#0f3d2e"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>',
+ok:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><path d="M5 12l5 5 9-10"/></svg>',
+cam:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'};
+const LOGO='<svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="12" fill="#e0ab27"/><path d="M24 7c-7.7 0-13.5 5.8-13.5 13.2 0 9.5 13.5 21 13.5 21s13.5-11.5 13.5-21C37.5 12.8 31.7 7 24 7z" fill="#0f3d2e"/><rect x="16.5" y="21" width="4" height="7" rx="1.2" fill="#e0ab27"/><rect x="22" y="17" width="4" height="11" rx="1.2" fill="#e0ab27"/><rect x="27.5" y="13" width="4" height="15" rx="1.2" fill="#fff"/></svg>';
+
+/* ---------- shell ---------- */
+const app=$('#app');
+function shell(title,sub,body,opt={}){
+  const pend=S.outbox.filter(o=>o.status==='pending').length;
+  app.innerHTML=`<div class="bar">${opt.back?`<button class="ib" data-act="back" aria-label="Back">${ic.back}</button>`:LOGO}<h2>${esc(title)}${sub?`<small>${esc(sub)}</small>`:''}</h2><button class="net ${S.online?'':'off'}" data-act="net" aria-label="Network status, tap to switch">${S.online?t('online'):t('offline')}</button></div>
+  <div class="body" id="body">${body}</div>
+  ${opt.tabs===false?'':`<nav class="tabs"><button data-go="home" ${['home','market','list','entry'].includes(S.view)?'aria-current="page"':''}>${ic.home}${t('home')}</button><button data-go="outbox" ${S.view==='outbox'?'aria-current="page"':''}>${ic.box}${t('outbox')}${pend?`<span class="badge">${pend}</span>`:''}</button><button data-go="settings" ${S.view==='settings'?'aria-current="page"':''}>${ic.cog}${t('settings')}</button></nav>`}
+  <div class="toast" id="toast" role="status"></div>`}
+let toastT;function toast(m){const el=$('#toast');if(!el)return;el.textContent=m;el.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>el.style.display='none',2600)}
+function go(v){S.view=v;render();const b=$('#body');if(b)b.scrollTop=0}
+
+/* ---------- screens ---------- */
+function vLogin(){
+  app.innerHTML=`<div class="body" style="background:var(--g);color:#eef5f0;display:flex;flex-direction:column;justify-content:center;padding:28px">
+   <div style="width:72px;height:72px;margin-bottom:18px">${LOGO.replace('class="logo"','style="width:72px;height:72px"')}</div>
+   <div style="font:800 30px/1.1 Inter,sans-serif">ACREPT<br>Enumerator</div>
+   <p style="color:#bcd3c5;margin:8px 0 24px">Jigawa State Agricultural Transformation Agency · market price reporting</p>
+   <form id="lf" autocomplete="off">
+    <label class="lbl" for="uid" style="color:#bcd3c5">${t('id')}</label><input id="uid" value="JATA-DUT-014" autocapitalize="characters" required>
+    <label class="lbl" for="pin" style="color:#bcd3c5">${t('pin')}</label><input id="pin" type="password" inputmode="numeric" maxlength="6" placeholder="••••" required>
+    <div id="lerr" class="note e" style="display:none"></div>
+    <button class="btn" style="margin-top:18px">${t('signin')}</button>
+   </form>
+   <div class="row" style="margin-top:18px;gap:8px"><span style="color:#bcd3c5;font-size:14px">${t('lang')}:</span><div class="seg" style="flex:1;border-color:#ffffff33;background:transparent">${['en','ha'].map(l=>`<button type="button" data-lang="${l}" aria-pressed="${S.lang===l}" style="color:${S.lang===l?'#fff':'#bcd3c5'}">${l==='en'?'English':'Hausa'}</button>`).join('')}</div></div>
+   <p style="color:#bcd3c5;font-size:13px;margin-top:18px">Demo: PIN 2468</p></div>`;
+  $('#lf').onsubmit=e=>{e.preventDefault();const id=$('#uid').value.trim().toUpperCase(),pin=$('#pin').value.trim();
+    if(pin!=='2468'){const el=$('#lerr');el.textContent='Wrong ID or PIN. Ask your zonal supervisor to reset it.';el.style.display='block';return}
+    const code=(id.split('-')[1]||'DUT');const m=MARKETS.find(x=>x.id.startsWith(code))||MARKETS.find(x=>x.lga==='Dutse');
+    S.user={id,lga:m.lga,zone:'Dutse'};save();go('home')}}
+
+function vHome(){
+  const mine=MARKETS.filter(m=>m.lga===S.user.lga),others=MARKETS.filter(m=>m.lga!==S.user.lga);
+  const tdy=S.outbox.filter(o=>o.captured_at.slice(0,10)===todayKey()),pend=S.outbox.filter(o=>o.status==='pending').length;
+  const dn=new Date().toLocaleDateString(S.lang==='ha'?'en-GB':'en-GB',{weekday:'long',day:'numeric',month:'long'});
+  const card=m=>{const n=new Set(todays(m.id).map(o=>o.code)).size;return `<button class="mk" data-mk="${m.id}"><span class="pin">${ic.pin}</span><span style="flex:1"><b>${esc(m.name)}</b><span class="sub">${esc(m.lga)} · ${m.type}${n?` · ${n} ${t('done')}`:''}</span></span>${ic.back.replace('M15 5l-7 7 7 7','M9 5l7 7-7 7')}</button>`};
+  shell('ACREPT',S.user.id,`<div class="hero"><div style="font-size:14px;color:#bcd3c5">${t('today')} · ${esc(dn)}</div>
+   <div class="k"><div><b>${tdy.length}</b><span>prices today</span></div><div><b>${new Set(tdy.map(o=>o.market_id)).size}</b><span>markets</span></div><div><b style="color:${pend?'#ffb4a8':'inherit'}">${pend}</b><span>${t('pending').toLowerCase()}</span></div></div></div>
+   <div class="h" style="font-size:18px">${t('chooseMarket')}</div><p class="sub" style="margin-bottom:10px">${t('yourLga')}: ${esc(S.user.lga)}</p>
+   ${mine.map(card).join('')}
+   <label class="lbl" for="mq">${t('all')} (27 LGAs)</label><input id="mq" type="search" placeholder="Search market or LGA" style="margin-bottom:10px">
+   <div id="ml">${others.map(card).join('')}</div>`)
+  const q=$('#mq');q.oninput=()=>{const s=q.value.toLowerCase();$('#ml').innerHTML=others.filter(m=>(m.name+m.lga).toLowerCase().includes(s)).map(card).join('')}}
+
+function vMarket(){const m=S.market,g=S.geo;
+  let geoHtml=`<div class="geo"><span class="dot" style="background:#c5ccc6"></span><span>Location not checked yet. ACREPT accepts prices recorded within 500 m of the market.</span></div>`;
+  if(g){const d=km(g,m);const ok=d<=0.5;geoHtml=`<div class="geo"><span class="dot" style="background:${ok?'var(--ok)':'var(--red)'}"></span><span><b>${ok?t('atMarket'):t('notAt')}</b><br><span class="sub">${d<1?Math.round(d*1000)+' m':d.toFixed(1)+' km'} from the market point · GPS ±${Math.round(g.acc)} m${g.sim?' · simulated':''}</span></span></div>${ok?'':`<div class="note w">Prices sent from outside the market are held for supervisor review.</div>`}`}
+  shell(m.name,`${m.lga} LGA · ${m.type}`,`<div class="card"><div class="lbl" style="margin-top:0">Market</div><b>${esc(m.name)}</b><p class="sub">${esc(m.lga)} LGA · ${m.type} market · ${m.lat.toFixed(4)}, ${m.lon.toFixed(4)}</p></div>
+   <div class="card">${geoHtml}<div class="g2" style="margin-top:12px"><button class="btn o sm" data-act="gps" style="width:100%">${t('checkLoc')}</button><button class="btn o sm" data-act="simgps" style="width:100%">Simulate at market</button></div></div>
+   <div class="card"><p class="sub">${new Set(todays(m.id).map(o=>o.code)).size} of ${C.length} commodities priced here today.</p><div class="prog"><i style="width:${new Set(todays(m.id).map(o=>o.code)).size/C.length*100}%"></i></div></div>
+   <div class="sticky"><button class="btn" data-act="start">${t('start')}</button></div>`,{back:'home'})}
+
+function vList(){const m=S.market,done=new Map(todays(m.id).map(o=>[o.code,o]));
+  const groups=[['pri',t('priority')],...G.map((g,i)=>[String(i),g])];
+  let list=S.tab==='pri'?C.filter(c=>PRIORITY.includes(c.code)):C.filter(c=>String(c.g)===S.tab);
+  if(S.q){const q=S.q.toLowerCase();list=C.filter(c=>(c.name+c.ha).toLowerCase().includes(q))}
+  const n=done.size;
+  shell(t('commodities'),m.name,`<div class="card" style="padding:12px"><div class="row" style="justify-content:space-between"><b>${n} / ${C.length} ${t('done')}</b><span class="sub">${PRIORITY.filter(c=>done.has(c)).length}/${PRIORITY.length} ${t('priority').toLowerCase()}</span></div><div class="prog"><i style="width:${n/C.length*100}%"></i></div></div>
+   <input id="cq" type="search" placeholder="Search: maize, masara…" value="${esc(S.q)}" style="margin-bottom:10px">
+   <div class="chipg">${groups.map(([k,l])=>`<button class="chip" data-tab="${k}" aria-pressed="${S.tab===k&&!S.q}">${esc(l)}</button>`).join('')}</div>
+   <div class="card" style="padding:0 12px">${list.map(c=>{const o=done.get(c.code);return `<button class="cm" data-com="${c.i}"><span class="tick ${o?(o.flag?'held':'on'):''}">${o?ic.ok:''}</span><span><b>${esc(c.name)}</b><span class="sub" style="display:block">${esc(c.ha)} · ${esc(c.unit)}</span></span><span class="p">${o?NGN(o.modal):'<span class="sub">Add</span>'}</span></button>`}).join('')||`<p class="sub" style="padding:14px 0">${t('empty')}</p>`}</div>
+   ${n?`<div class="sticky"><button class="btn g" data-act="review">${t('review')} (${n})</button></div>`:''}`,{back:'market'});
+  const q=$('#cq');q.oninput=()=>{S.q=q.value;const pos=q.selectionStart;vList();const q2=$('#cq');q2.focus();q2.setSelectionRange(pos,pos)}}
+
+function vEntry(){const c=C[S.com],m=S.market,f=S.form,med=MED[m.id][c.i];
+  const units=[[c.unit,c.kg||1]];if(c.kg&&c.kg>=25){if(c.g<=1)units.push(['mudu (~2.2 kg)',2.2]);units.push(['kg',1])}
+  const ui=Math.min(f.u,units.length-1),uf=units[ui][1]/(units[0][1]||1),mm=med*uf;
+  const vals=[f.min,f.modal,f.max].map(Number);const has=vals.every(v=>v>0);
+  let msg='';
+  if(has&&!(vals[0]<=vals[1]&&vals[1]<=vals[2]))msg=`<div class="note e">Lowest must be at most the most common, and most common at most the highest.</div>`;
+  else if(vals[1]>0){const dev=vals[1]/mm-1;if(Math.abs(dev)>0.25)msg=`<div class="note w"><b>Check this price.</b> ${NGN(vals[1])} is ${Math.abs(dev*100).toFixed(0)}% ${dev>0?'above':'below'} this market's 7-day median of ${NGN(mm)}. If it is right, save it and it will be reviewed by your supervisor.</div>`;
+    else msg=`<div class="note ok">Within the normal range (7-day median ${NGN(mm)}).</div>`}
+  const can=has&&vals[0]<=vals[1]&&vals[1]<=vals[2];
+  shell(c.name,`${c.ha} · ${m.name}`,`
+   <label class="lbl" style="margin-top:0">${t('unit')}</label><div class="seg">${units.map((u,i)=>`<button data-u="${i}" aria-pressed="${ui===i}">${esc(u[0])}</button>`).join('')}</div>
+   <label class="lbl">${t('ptype')}</label><div class="seg">${[['W','wholesale'],['R','retail'],['F','farmgate']].map(([k,l])=>`<button data-pt="${k}" aria-pressed="${f.pt===k}">${t(l)}</button>`).join('')}</div>
+   <div class="g3"><div><label class="lbl" for="pmin">${t('low')} ₦</label><input id="pmin" inputmode="numeric" value="${esc(f.min)}"></div><div><label class="lbl" for="pmod">${t('common')} ₦</label><input id="pmod" inputmode="numeric" value="${esc(f.modal)}" style="border-color:var(--g)"></div><div><label class="lbl" for="pmax">${t('high')} ₦</label><input id="pmax" inputmode="numeric" value="${esc(f.max)}"></div></div>
+   <div id="msg">${msg}</div>
+   <label class="lbl">${t('supply')}</label><div class="seg">${[['L','sLow'],['N','sNorm'],['H','sHigh']].map(([k,l])=>`<button data-sp="${k}" aria-pressed="${f.sp===k}">${t(l)}</button>`).join('')}</div>
+   ${c.kg&&c.kg>=25?`<label class="lbl" for="pw">${t('weight')}</label><input id="pw" inputmode="decimal" value="${esc(f.w)}" placeholder="e.g. 2.3">`:''}
+   <label class="lbl">${t('photo')}</label><div class="ph">${f.photo?`<img src="${f.photo}" alt="Photo of measure">`:''}<label class="btn o sm" style="width:100%">${ic.cam}<span>${f.photo?'Retake':'Take photo'}</span><input type="file" id="pf" accept="image/*" capture="environment" hidden></label></div>
+   <div class="sticky"><button class="btn g" data-act="saveprice" ${can?'':'disabled'}>${t('save')}</button></div>`,{back:'list'});
+  ['pmin','pmod','pmax','pw'].forEach(id=>{const el=$('#'+id);if(!el)return;el.addEventListener('input',()=>{el.value=el.value.replace(/[^0-9.]/g,'');const k={pmin:'min',pmod:'modal',pmax:'max',pw:'w'}[id];f[k]=el.value;
+    if(id==='pmod'&&f.modal&&!f.min&&!f.max){}const pos=el.selectionStart;vEntry();const e2=$('#'+id);e2.focus();try{e2.setSelectionRange(pos,pos)}catch(e){}})});
+  const pf=$('#pf');pf.onchange=()=>{const file=pf.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const cv=document.createElement('canvas'),s=Math.min(1,480/Math.max(im.width,im.height));cv.width=im.width*s;cv.height=im.height*s;cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);f.photo=cv.toDataURL('image/jpeg',.6);vEntry()};im.src=r.result};r.readAsDataURL(file)}}
+
+function vReview(){const m=S.market,items=todays(m.id);
+  shell(t('review'),m.name,`<div class="card"><b>${items.length} prices for ${esc(m.name)}</b><p class="sub">${items.filter(o=>o.status==='pending').length} ${t('pending').toLowerCase()} · ${items.filter(o=>o.flag).length} flagged for review</p></div>
+   <div class="card" style="padding:0 12px">${items.map(o=>`<div class="ob"><span><b>${esc(o.name)}</b><br><span class="sub">${NGN(o.min)} – ${NGN(o.max)} · ${o.price_type==='W'?'wholesale':o.price_type==='R'?'retail':'farm-gate'} · per ${esc(o.unit)}</span></span><span style="text-align:right"><b>${NGN(o.modal)}</b><br><span class="st ${o.status}">${t(o.status)}</span></span></div>`).join('')}</div>
+   <div class="sticky"><button class="btn g" data-act="sync">${S.online?t('send'):t('send')+' (when online)'}</button><button class="btn o" data-act="smsview" style="margin-top:10px">${t('sms')}</button></div>`,{back:'list'})}
+
+function smsText(items){const m=S.market||MARKETS.find(x=>x.id===items[0]?.market_id);const d=new Date();const dd=String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0');
+  return `ACR ${S.user.id.replace('JATA-','')} ${m.id} ${dd} `+items.map(o=>`${o.code}:${o.min}/${o.modal}/${o.max}:${o.price_type}`).join(' ')}
+function vSms(){const items=todays(S.market.id).filter(o=>o.status==='pending');const txt=smsText(items.length?items:todays(S.market.id));
+  shell(t('sms'),S.market.name,`<div class="card"><p class="sub">No data network? Send this code by SMS to the ACREPT shortcode. The server reads it exactly like the app.</p><pre id="smst">${esc(txt)}</pre>
+   <p class="sub">${txt.length} characters · ${Math.ceil(txt.length/153)} SMS part${txt.length>153?'s':''}</p>
+   <label class="lbl" for="smsn">ACREPT SMS number</label><input id="smsn" inputmode="tel" value="${esc(S.smsNo)}" placeholder="Set by JATA">
+   <div class="g2" style="margin-top:12px"><button class="btn o sm" data-act="copysms" style="width:100%">Copy code</button><button class="btn g sm" data-act="opensms" style="width:100%">Open SMS app</button></div>
+   <div class="note i">Format: ACR &lt;enumerator&gt; &lt;market&gt; &lt;DDMM&gt; then CODE:lowest/most common/highest:W|R|F for each commodity.</div></div>`,{back:'review'})}
+
+function vOutbox(){const o=S.outbox.slice().reverse();const pend=S.outbox.filter(x=>x.status==='pending').length;
+  shell(t('outbox'),`${pend} ${t('pending').toLowerCase()}`,`${pend?`<button class="btn g" data-act="sync" style="margin-bottom:12px">${t('syncNow')} (${pend})</button>`:''}
+   <div class="card" style="padding:0 12px">${o.slice(0,80).map(x=>`<div class="ob"><span><b>${esc(x.name)}</b> ${NGN(x.modal)}<br><span class="sub">${esc(x.market)} · ${new Date(x.captured_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}${x.flag?' · '+esc(x.flag):''}</span></span><span class="st ${x.status}">${t(x.status)}</span></div>`).join('')||`<p class="sub" style="padding:14px 0">${t('empty')}</p>`}</div>`)}
+
+function vSettings(){
+  shell(t('settings'),S.user.id,`<div class="card"><b>${esc(S.user.id)}</b><p class="sub">Assigned LGA: ${esc(S.user.lga)} · ACREPT Enumerator v1.0</p></div>
+   <div class="card"><label class="lbl" style="margin-top:0">${t('lang')}</label><div class="seg">${['en','ha'].map(l=>`<button data-lang="${l}" aria-pressed="${S.lang===l}">${l==='en'?'English':'Hausa'}</button>`).join('')}</div><p class="sub" style="margin-top:8px">Hausa labels are a draft for JATA to review.</p></div>
+   <div class="card"><label class="lbl" for="srv" style="margin-top:0">ACREPT server</label><input id="srv" value="${esc(S.server)}" placeholder="https://acrept.jigawa.gov.ng"><p class="sub" style="margin-top:6px">"demo" keeps everything on this device.</p></div>
+   <div class="card"><b>Reference data</b><p class="sub">${MARKETS.length} markets · ${C.length} commodities · 7-day medians updated when online.</p></div>
+   <button class="btn o" data-act="clear" style="margin-bottom:10px">Clear sent records</button>
+   <button class="btn o" data-act="signout" style="color:var(--red);border-color:var(--red)">${t('signout')}</button>`);
+  const s=$('#srv');s.onchange=()=>{S.server=s.value.trim()||'demo';save();toast('Server saved')}}
+
+function render(){if(!S.user)return vLogin();({home:vHome,market:vMarket,list:vList,entry:vEntry,review:vReview,sms:vSms,outbox:vOutbox,settings:vSettings}[S.view]||vHome)()}
+
+/* ---------- actions ---------- */
+async function sync(){
+  const pend=S.outbox.filter(o=>o.status==='pending');if(!pend.length)return toast('Everything is sent');
+  if(!S.online)return toast('Offline: prices are saved and will be sent when the network returns');
+  toast(`Sending ${pend.length}…`);
+  let ok=false;
+  if(S.server&&S.server!=='demo'){try{const r=await fetch(S.server.replace(/\/$/,'')+'/api/v1/observations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enumerator:S.user.id,observations:pend.map(({name,status,...o})=>o)})});ok=r.ok}catch(e){ok=false}
+    if(!ok){toast('Server not reachable. Prices stay in the outbox.');return}}
+  else await new Promise(r=>setTimeout(r,900));
+  pend.forEach(o=>o.status=o.flag?'held':'synced');save();render();toast(`${pend.length} sent${pend.some(o=>o.flag)?'; flagged prices go to your supervisor':''}`)}
+app.addEventListener('click',e=>{const b=e.target.closest('button,[data-mk],[data-com]');if(!b)return;const d=b.dataset;
+  if(d.go)return go(d.go);
+  if(d.lang){S.lang=d.lang;save();return render()}
+  if(d.mk){S.market=MARKETS.find(m=>m.id===d.mk);S.geo=null;return go('market')}
+  if(d.tab){S.tab=d.tab;S.q='';return vList()}
+  if(d.com!=null){S.com=+d.com;const prev=todays(S.market.id).filter(o=>o.code===C[S.com].code).pop();S.form=prev?{u:0,pt:prev.price_type,min:String(prev.min),modal:String(prev.modal),max:String(prev.max),sp:prev.supply,w:prev.measure_kg||'',photo:prev.photo||null}:{u:0,pt:'W',min:'',modal:'',max:'',sp:'N',w:'',photo:null};return go('entry')}
+  if(d.u!=null){S.form.u=+d.u;return vEntry()}if(d.pt){S.form.pt=d.pt;return vEntry()}if(d.sp){S.form.sp=d.sp;return vEntry()}
+  switch(d.act){
+   case 'back':{const map={market:'home',list:'market',entry:'list',review:'list',sms:'review'};return go(map[S.view]||'home')}
+   case 'net':S.online=!S.online;render();toast(S.online?'Back online':'Offline mode: prices are saved on the phone');if(S.online)sync();return;
+   case 'gps':{const m=S.market;if(isAndroid&&window.AndroidBridge.requestLocation){window.AndroidBridge.requestLocation();return}
+     if(!navigator.geolocation){S.geo={lat:m.lat+.02,lon:m.lon,acc:30,sim:true};return vMarket()}
+     toast('Getting GPS fix…');navigator.geolocation.getCurrentPosition(p=>{S.geo={lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy};vMarket()},()=>{toast('GPS not available here. Use "Simulate at market" for the demo.')},{enableHighAccuracy:true,timeout:8000});return}
+   case 'simgps':S.geo={lat:S.market.lat+.0012,lon:S.market.lon+.0008,acc:8,sim:true};return vMarket();
+   case 'start':return go('list');
+   case 'saveprice':{const c=C[S.com],m=S.market,f=S.form,units=[[c.unit,c.kg||1]];if(c.kg&&c.kg>=25){if(c.g<=1)units.push(['mudu (~2.2 kg)',2.2]);units.push(['kg',1])}
+     const u=units[Math.min(f.u,units.length-1)],k=u[1]/(units[0][1]||1),toUnit=v=>Math.round(Number(v)/k);
+     const med=MED[m.id][c.i],modal=toUnit(f.modal),dev=modal/med-1,geoOk=S.geo?km(S.geo,m)<=.5:false;
+     const flag=Math.abs(dev)>.25?'price far from median':(!geoOk?'location not confirmed':'');
+     S.outbox=S.outbox.filter(o=>!(o.market_id===m.id&&o.code===c.code&&o.captured_at.slice(0,10)===todayKey()&&o.status==='pending'));
+     S.outbox.push({uid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),enumerator:S.user.id,market_id:m.id,market:m.name,lga:m.lga,code:c.code,name:c.name,unit:c.unit,kg_per_unit:c.kg||null,entered_unit:u[0],price_type:f.pt,min:toUnit(f.min),modal,max:toUnit(f.max),supply:f.sp,measure_kg:f.w?Number(f.w):null,photo:f.photo,gps:S.geo?{lat:S.geo.lat,lon:S.geo.lon,acc:S.geo.acc}:null,captured_at:new Date().toISOString(),flag,status:'pending'});
+     save();go('list');toast(`${c.name} saved${flag?' · flagged: '+flag:''}`);return}
+   case 'review':return go('review');
+   case 'sync':return sync();
+   case 'smsview':return go('sms');
+   case 'copysms':{const txt=$('#smst').textContent;(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Code copied')).catch(()=>toast('Copy blocked: select the code and copy it'));return}
+   case 'opensms':{S.smsNo=$('#smsn').value.trim();save();const txt=$('#smst').textContent;if(isAndroid&&window.AndroidBridge.sendSms){window.AndroidBridge.sendSms(S.smsNo,txt);return}
+     const a=document.createElement('a');a.href=`sms:${encodeURIComponent(S.smsNo)}?body=${encodeURIComponent(txt)}`;a.click();toast('On a phone this opens the SMS app with the code ready');return}
+   case 'clear':S.outbox=S.outbox.filter(o=>o.status==='pending');save();toast('Sent records cleared');return render();
+   case 'signout':S.user=null;save();return render();
+  }});
+/* Android bridge callback */
+window.acreptOnLocation=(lat,lon,acc)=>{S.geo={lat,lon,acc};if(S.view==='market')vMarket()};
+window.acreptOnNetwork=on=>{S.online=!!on;render();if(on)sync()};
+addEventListener('online',()=>{S.online=true;render();sync()});addEventListener('offline',()=>{S.online=false;render()});
+render();
+}
+</script>
+</body>
+</html>

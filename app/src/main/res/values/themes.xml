@@ -1,0 +1,10 @@
+<resources>
+    <style name="Theme.Acrept" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/acrept_green</item>
+        <item name="colorPrimaryDark">@color/acrept_green</item>
+        <item name="colorAccent">@color/acrept_gold</item>
+        <item name="android:statusBarColor">@color/acrept_green</item>
+        <item name="android:navigationBarColor">@android:color/white</item>
+        <item name="android:windowBackground">@color/acrept_green</item>
+    </style>
+</resources>

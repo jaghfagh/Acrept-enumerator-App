@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ACREPT Enumerator</string>
+    <string name="location_denied">Location permission is needed to confirm you are at the market.</string>
+    <string name="no_sms_app">No SMS app found on this phone.</string>
+</resources>
