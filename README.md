@@ -141,5 +141,5 @@ Market codes are the first three letters of the LGA plus a number (Birnin Kudu i
 
 1. Create a GitHub repository and upload the contents of this folder (keep the `.github` folder).
 2. Open the repository's **Actions** tab. The workflow **Build ACREPT Enumerator APK** runs on every push to `main`, or press **Run workflow**.
-3. After about 5–8 minutes, open the finished run and download **ACREPT-Enumerator-apk** under *Artifacts*. Unzip it to get `app-debug.apk`.
+3. After about 5–8 minutes, open the repository's **Releases** (right-hand side) and download `ACREPT-Enumerator.apk` from **ACREPT Enumerator (latest build)**.
 4. Copy the APK to an Android phone and open it (allow "Install unknown apps" when asked).
